@@ -1,0 +1,10 @@
+[package]
+name = "macos_memory_monitor"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+libc = "0.2"
+libproc = "0.6"
+rustyline = "11.0"
+strsim = "0.10"
