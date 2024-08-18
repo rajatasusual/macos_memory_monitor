@@ -1,13 +1,9 @@
-extern crate libc;
-extern crate libproc;
-extern crate rustyline;
-extern crate strsim;
-
 mod util;
 
 use libproc::libproc::proc_pid;
 use libproc::libproc::proc_pid::{listpids, ProcType};
 use libproc::libproc::task_info::TaskAllInfo;
+use prettytable::{row, Table};
 use rustyline::highlight::Highlighter;
 use rustyline::hint::Hinter;
 use rustyline::validate::Validator;
@@ -33,17 +29,28 @@ fn get_process_info(pid: i32) -> io::Result<()> {
     })?;
 
     let info = proc_pid::pidinfo::<TaskAllInfo>(pid, 0).map_err(|_| {
-        io::Error::new(io::ErrorKind::Other, "Unable to retrieve the process info for PID")
+        io::Error::new(
+            io::ErrorKind::Other,
+            "Unable to retrieve the process info for PID",
+        )
     })?;
 
     let memory_usage = ByteSize(info.ptinfo.pti_resident_size);
     let total_time = TimeFormat(info.ptinfo.pti_total_user);
+
+    let mut table = Table::new();
     
-    println!("PID: {}", pid);
-    println!("Name: {}", process_name);
-    println!("Memory Usage: {}", memory_usage.format());
-    println!("Total CPU Time: {}", total_time.format());
-    
+    table.add_row(row![bFg => "Attribute", "Value"]);
+
+    // Add rows to the table
+
+    table.add_row(row![bFb -> "Process ID", Fb-> &pid.to_string()]);
+    table.add_row(row![bFb -> "Process Name", Fb-> &process_name]);
+    table.add_row(row![bFb -> "Memory Usage", Fb-> &memory_usage.format()]);
+    table.add_row(row![bFb -> "Total CPU Time", Fb-> &total_time.format()]);
+    // Print the table
+    table.printstd();
+
     Ok(())
 }
 
@@ -68,25 +75,24 @@ fn get_best_matches<'a>(
 }
 
 fn main() -> io::Result<()> {
-    let pids = listpids(ProcType::ProcAllPIDS).map_err(|e| {
-        io::Error::new(io::ErrorKind::Other, e.to_string())
-    })?;
+    let pids = listpids(ProcType::ProcAllPIDS)
+        .map_err(|e| io::Error::new(io::ErrorKind::Other, e.to_string()))?;
 
     let processes: Vec<(i32, String, u64)> = pids
         .into_iter()
         .filter(|&pid| pid != 0)
         .filter_map(|pid| {
-            proc_pid::name(pid as i32)
-                .ok()
-                .and_then(|name| {
-                    proc_pid::pidinfo::<TaskAllInfo>(pid as i32, 0).ok().map(|info| {
-                        (pid as i32, name, info.ptinfo.pti_resident_size)
-                    })
-                })
+            proc_pid::name(pid as i32).ok().and_then(|name| {
+                proc_pid::pidinfo::<TaskAllInfo>(pid as i32, 0)
+                    .ok()
+                    .map(|info| (pid as i32, name, info.ptinfo.pti_resident_size))
+            })
         })
         .collect();
 
-    let completer = ProcessCompleter { processes: processes.clone() };
+    let completer = ProcessCompleter {
+        processes: processes.clone(),
+    };
     let mut rl = Editor::new().map_err(|e| io::Error::new(io::ErrorKind::Other, e.to_string()))?;
     rl.set_helper(Some(completer));
 
@@ -121,4 +127,3 @@ fn main() -> io::Result<()> {
 
     Ok(())
 }
-
