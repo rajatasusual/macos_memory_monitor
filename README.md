@@ -31,11 +31,11 @@ A command-line utility written in Rust that lets you to monitor and gain insight
     * Supports autocompletion based on both process names and PIDs.
 
 * **Detailed Process Insights:**
-    * Enables you to delve into the specifics of a chosen process, revealing:
-        * PID: The unique process identifier.
-        * Name: The human-readable name of the process.
-        * Memory Usage: The precise memory footprint of the process, formatted in human-readable units (e.g., KB, MB, GB).
-        * Total CPU Time: The cumulative CPU time utilized by the process, formatted in a human-readable manner (e.g., seconds, minutes, hours, or days).
+    * Enables you to delve into the specifics of a chosen process, revealing its details in a formatted table:
+        * PID
+        * Name
+        * Memory Usage
+        * Total CPU Time
 
 ## Getting Started
 
@@ -71,6 +71,7 @@ This project utilizes the following Rust crates:
 
 * `libc`: Provides bindings to the standard C library, essential for low-level system interactions.
 * `libproc`: Facilitates interaction with process information on macOS and Linux systems.
+* `prettytable-rs`: Enables the creation of formatted tables for clear and organized output.
 * `rustyline`: Empowers the creation of interactive command-line interfaces, incorporating features like history and autocompletion.
 * `strsim`: Implements string similarity algorithms, notably the Jaro-Winkler distance, for efficient process matching.
 
@@ -101,6 +102,10 @@ This project utilizes the following Rust crates:
 * **Process Matching:**
     * Employs the Jaro-Winkler similarity algorithm (`strsim` crate) for fuzzy matching of process names.
     * Prioritizes exact PID matches over name matches when both are provided.
+
+* **Output Formatting:**
+    * Uses `prettytable-rs` to present process information in a well-structured and visually appealing table format.
+    * Employs `prettytable-rs` macros to add basic styling (bold text) to the table headers and attribute names
 
 * **Error Handling:**
     * Makes extensive use of Rust's `Result` type for error handling and propagation.
