@@ -24,7 +24,7 @@ A command-line utility written in Rust that lets you to monitor and gain insight
         * Process ID (PID): The unique identifier for each process.
         * Process Name: The name of the executable associated with the process.
         * Memory Usage: The amount of memory currently utilized by the process.
-        * CPU Usage: The percentage of CPU resources being consumed by the process.
+        * Total CPU Time: The total CPU time consumed by the process.
 
 * **Intuitive Autocompletion:**
     * Streamlines process selection by providing autocompletion suggestions as you type.
@@ -35,7 +35,7 @@ A command-line utility written in Rust that lets you to monitor and gain insight
         * PID: The unique process identifier.
         * Name: The human-readable name of the process.
         * Memory Usage: The precise memory footprint of the process, formatted in human-readable units (e.g., KB, MB, GB).
-        * CPU Usage: The real-time CPU utilization of the process, expressed as a percentage.
+        * Total CPU Time: The cumulative CPU time utilized by the process, formatted in a human-readable manner (e.g., seconds, minutes, hours, or days).
 
 ## Getting Started
 
@@ -44,7 +44,7 @@ A command-line utility written in Rust that lets you to monitor and gain insight
 
 2. **Clone the Repository:**
     ```bash
-    git clone https://github.com/rajatasusual/macos_memory_monitor.git
+    git clone [https://github.com/rajatasusual/macos_memory_monitor.git](https://github.com/rajatasusual/macos_memory_monitor.git)
     ```
 
 3. **Build and Run:**
@@ -81,21 +81,18 @@ This project utilizes the following Rust crates:
     * Handles process list initialization, command-line interface setup, and user interaction loop.
     * Orchestrates the retrieval and display of process information.
 
-* `process.rs`:
-    * Contains core functions related to process information retrieval and manipulation.
-    * `get_process_info`: Fetches detailed information about a process, including PID, name, memory usage, CPU usage, status, and user.
-    * `ProcessCompleter`: Implements autocompletion functionality for process names and PIDs.
-
-* `utils.rs`:
+* `util.rs`:
     * Houses utility functions and structs.
     * `ByteSize`: Provides formatting for memory usage in human-readable units.
+    * `TimeFormat`: Provides formatting for CPU time in human-readable units
+    * `ProcessCompleter`: Implements autocompletion functionality for process names and PIDs.
 
 ## Implementation Details
 
 * **Process Information Retrieval:**
     * Leverages the `libproc` crate to interact with the process table on macOS.
-    * Employs the `sysctl` system call to access kernel-level process information, including CPU times.
-    * Defines custom structs (`ExternProc`, `Proc`, `KinfoProc`) to represent process data structures from kernel headers.
+    * Employs `proc_pid::pidinfo` to access process information, including memory usage and CPU time
+    * `proc_pid::name` to get process name
 
 * **Autocompletion:**
     * Utilizes the `rustyline` crate to provide interactive command-line features, including autocompletion.
@@ -113,8 +110,6 @@ This project utilizes the following Rust crates:
 
 * **Jaro-Winkler Similarity:**  Measures the similarity between two strings, used for fuzzy matching of process names.
 * **Autocompletion:** Implements prefix-based suggestions for process names and PIDs to enhance user experience.
-* **System Calls:** Utilizes the `sysctl` system call to access low-level process information from the kernel.
-* **Foreign Function Interface (FFI):**  Defines C-compatible structs using `#[repr(C)]` to interact with system-level APIs.
 
 ## Future Enhancements
 
