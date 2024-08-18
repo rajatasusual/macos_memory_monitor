@@ -37,6 +37,10 @@ A command-line utility written in Rust that lets you to monitor and gain insight
         * Memory Usage
         * Total CPU Time
 
+* **Filtering and Sorting:**
+    * Filter processes by name or PID.
+    * Sort processes by memory usage or total CPU time.
+
 ## Getting Started
 
 1. **Prerequisites:**
@@ -58,11 +62,15 @@ A command-line utility written in Rust that lets you to monitor and gain insight
 
 1. **Launch:** Execute the compiled binary to start the macOS Memory Monitor.
 
-2. **Search & Select:**
-    * Begin typing a process name or PID. The tool will dynamically offer autocompletion suggestions.
+2. **Search, Filter, & Sort:**
+    * Begin typing a process name or PID to search. The tool will dynamically offer autocompletion suggestions.
+    * Filter the process list by typing `name:` followed by the filter text, or `pid:` followed by the PID to filter by.
+    * Sort the process list by typing `sort:memory` to sort by memory usage or `sort:cpu` to sort by total CPU time
+
+3. **Select:**
     * Press `Enter` to choose a process and view its comprehensive details.
 
-3. **Exit:**
+4. **Exit:**
     * Press `CTRL-C` or `CTRL-D` to gracefully terminate the macOS Memory Monitor.
 
 ## Dependencies
@@ -88,6 +96,9 @@ This project utilizes the following Rust crates:
     * `TimeFormat`: Provides formatting for CPU time in human-readable units
     * `ProcessCompleter`: Implements autocompletion functionality for process names and PIDs.
 
+* `matching.rs`
+    * Contains functions for process matching, filtering and sorting
+
 ## Implementation Details
 
 * **Process Information Retrieval:**
@@ -99,9 +110,11 @@ This project utilizes the following Rust crates:
     * Utilizes the `rustyline` crate to provide interactive command-line features, including autocompletion.
     * The `ProcessCompleter` struct implements the necessary logic to suggest completions based on process names and PIDs.
 
-* **Process Matching:**
+* **Process Matching, Filtering, and Sorting**
     * Employs the Jaro-Winkler similarity algorithm (`strsim` crate) for fuzzy matching of process names.
     * Prioritizes exact PID matches over name matches when both are provided.
+    * Supports filtering by process name or PID
+    * Provides sorting by memory usage or total CPU time
 
 * **Output Formatting:**
     * Uses `prettytable-rs` to present process information in a well-structured and visually appealing table format.
@@ -118,7 +131,6 @@ This project utilizes the following Rust crates:
 
 ## Future Enhancements
 
-* **Filtering and Sorting:** Allow users to filter and sort the process list based on various criteria.
 * **Interactive Mode:**  Enable process selection and perform actions like killing, suspending, or adjusting process priority.
 * **Real-Time Updates:**  Periodically refresh the process list and displayed information.
 * **Cross-Platform Compatibility:**  Abstract system-specific code to support other operating systems.

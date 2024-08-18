@@ -14,15 +14,18 @@ impl Completer for ProcessCompleter {
         _ctx: &Context<'_>,
     ) -> rustyline::Result<(usize, Vec<Self::Candidate>)> {
         let mut completions = Vec::new();
+        let line_lower = line.to_lowercase(); // Convert input to lowercase for case-insensitive matching
+
         for (pid, name, _memory) in &self.processes {
-            if name.starts_with(line) || pid.to_string().starts_with(line) {
+            if name.to_lowercase().starts_with(&line_lower) 
+                || pid.to_string().starts_with(line) 
+            {
                 completions.push(format!("{} - {}", pid, name));
             }
         }
         Ok((0, completions))
     }
 }
-
 
 pub struct ByteSize(pub u64);
 

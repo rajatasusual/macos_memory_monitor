@@ -1,8 +1,10 @@
 mod util;
+mod matching;
 
 use libproc::libproc::proc_pid;
 use libproc::libproc::proc_pid::{listpids, ProcType};
 use libproc::libproc::task_info::TaskAllInfo;
+use matching::{get_best_matches, sort_by_memory, sort_by_cpu_time};
 use prettytable::{row, Table};
 use rustyline::highlight::Highlighter;
 use rustyline::hint::Hinter;
@@ -10,7 +12,6 @@ use rustyline::validate::Validator;
 use rustyline::Editor;
 use rustyline::Helper;
 use std::io;
-use strsim::jaro_winkler;
 use util::{ByteSize, ProcessCompleter, TimeFormat};
 
 impl Helper for ProcessCompleter {}
@@ -54,26 +55,6 @@ fn get_process_info(pid: i32) -> io::Result<()> {
     Ok(())
 }
 
-fn get_best_matches<'a>(
-    input: &str,
-    processes: &'a Vec<(i32, String, u64)>,
-) -> Vec<(f64, i32, String, u64)> {
-    processes
-        .iter()
-        .map(|(pid, name, memory)| {
-            let name_score = jaro_winkler(&input, name);
-            let pid_score = if input.parse::<i32>().ok() == Some(*pid) {
-                1.0
-            } else {
-                0.0
-            };
-            let score = name_score.max(pid_score);
-            (score, *pid, name.clone(), *memory)
-        })
-        .filter(|(score, _, _, _)| *score > 0.7)
-        .collect()
-}
-
 fn main() -> io::Result<()> {
     let pids = listpids(ProcType::ProcAllPIDS)
         .map_err(|e| io::Error::new(io::ErrorKind::Other, e.to_string()))?;
@@ -97,12 +78,19 @@ fn main() -> io::Result<()> {
     rl.set_helper(Some(completer));
 
     loop {
-        let readline = rl.readline("Enter PID or process name: ");
+        let readline = rl.readline("Enter PID or process name (filter: 'name:filter_text' or 'pid:filter_pid', sort: 'memory' or 'cpu'): ");
         match readline {
             Ok(input) => {
                 let _ = rl.add_history_entry(input.as_str());
 
-                let best_matches = get_best_matches(&input, &processes);
+                let mut best_matches = get_best_matches(&input, &processes);
+
+                // Apply sorting if requested
+                if input.contains("sort:memory") {
+                    sort_by_memory(&mut best_matches);
+                } else if input.contains("sort:cpu") {
+                    sort_by_cpu_time(&mut best_matches);
+                }
 
                 if let Some((_, pid, _, _)) = best_matches.first() {
                     get_process_info(*pid)?;

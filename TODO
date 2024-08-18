@@ -4,8 +4,8 @@
     * ~~Implement a table view for process list and details.~~
     * ~~Consider adding color coding for visual differentiation.~~
 
-2. **User Interaction Enhancements:**
-    * Implement basic filtering and sorting capabilities (name, PID, memory, CPU time).
+2. **~~User Interaction Enhancements:~~**
+    * ~~Implement basic filtering and sorting capabilities (name, PID, memory, CPU time).~~
 
 **Medium Priority**
 
